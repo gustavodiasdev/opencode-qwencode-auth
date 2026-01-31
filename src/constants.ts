@@ -50,12 +50,4 @@ export const QWEN_MODELS = {
     description: 'Faster Qwen coding model for quick responses',
     cost: { input: 0, output: 0 },
   },
-  'qwen-coder-plus': {
-    id: 'qwen-coder-plus',
-    name: 'Qwen Coder Plus (OAuth)',
-    contextWindow: 131072,
-    maxOutput: 32768,
-    description: 'Standard Qwen coding model',
-    cost: { input: 0, output: 0 },
-  },
 } as const;

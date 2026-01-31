@@ -132,18 +132,19 @@ export const QwenAuthPlugin = async (_input: unknown) => {
               const deviceAuth = await requestDeviceAuthorization(challenge);
               openBrowser(deviceAuth.verification_uri_complete);
 
+              const POLLING_MARGIN_MS = 3000;
+
               return {
                 url: deviceAuth.verification_uri_complete,
-                instructions: `Abra o link e autorize.\n\nCódigo: ${deviceAuth.user_code}\n\nApós autorizar, pressione Enter...`,
-                method: 'code',
-                callback: async (_code: string) => {
-                  // Polling após Enter
+                instructions: `Código: ${deviceAuth.user_code}`,
+                method: 'auto' as const,
+                callback: async () => {
                   const startTime = Date.now();
                   const timeoutMs = deviceAuth.expires_in * 1000;
-                  let interval = 2000;
+                  let interval = 5000;
 
                   while (Date.now() - startTime < timeoutMs) {
-                    await new Promise(r => setTimeout(r, interval));
+                    await Bun.sleep(interval + POLLING_MARGIN_MS);
 
                     try {
                       const tokenResponse = await pollDeviceToken(deviceAuth.device_code, verifier);
@@ -153,7 +154,7 @@ export const QwenAuthPlugin = async (_input: unknown) => {
                         saveCredentials(credentials);
 
                         return {
-                          type: 'success',
+                          type: 'success' as const,
                           access: credentials.accessToken,
                           refresh: credentials.refreshToken || '',
                           expires: credentials.expiryDate || Date.now() + 3600000,
@@ -162,14 +163,14 @@ export const QwenAuthPlugin = async (_input: unknown) => {
                     } catch (e) {
                       const msg = e instanceof Error ? e.message : '';
                       if (msg.includes('slow_down')) {
-                        interval = Math.min(interval * 1.5, 10000);
+                        interval = Math.min(interval + 5000, 15000);
                       } else if (!msg.includes('authorization_pending')) {
-                        return { type: 'failed' };
+                        return { type: 'failed' as const };
                       }
                     }
                   }
 
-                  return { type: 'failed' };
+                  return { type: 'failed' as const };
                 },
               };
             } catch (e) {
@@ -177,8 +178,8 @@ export const QwenAuthPlugin = async (_input: unknown) => {
               return {
                 url: '',
                 instructions: `Erro: ${msg}`,
-                method: 'code',
-                callback: async () => ({ type: 'failed' }),
+                method: 'auto' as const,
+                callback: async () => ({ type: 'failed' as const }),
               };
             }
           },
