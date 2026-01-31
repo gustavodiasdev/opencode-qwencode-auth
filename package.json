@@ -1,0 +1,46 @@
+{
+  "name": "opencode-qwen-auth",
+  "version": "1.0.0",
+  "description": "Qwen OAuth authentication plugin for OpenCode - Access Qwen3-Coder models with your qwen.ai account",
+  "module": "index.ts",
+  "type": "module",
+  "scripts": {
+    "build": "bun build ./src/index.ts --outdir ./dist --target node --format esm && bun build ./src/cli.ts --outdir ./dist --target node --format esm",
+    "dev": "bun run --watch src/index.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "keywords": [
+    "opencode",
+    "qwen",
+    "qwen-code",
+    "qwen3-coder",
+    "oauth",
+    "authentication",
+    "ai",
+    "llm",
+    "opencode-plugins"
+  ],
+  "author": "",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/YOUR_USERNAME/opencode-qwen-auth"
+  },
+  "dependencies": {
+    "open": "^10.1.0"
+  },
+  "devDependencies": {
+    "@opencode-ai/plugin": "^1.1.48",
+    "@types/node": "^22.0.0",
+    "bun-types": "^1.1.0",
+    "typescript": "^5.6.0"
+  },
+  "files": [
+    "index.ts",
+    "src",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}
