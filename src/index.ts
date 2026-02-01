@@ -8,7 +8,7 @@
 import { existsSync } from 'node:fs';
 import { spawn } from 'node:child_process';
 
-import { QWEN_MODELS, QWEN_API_CONFIG } from './constants.js';
+import { QWEN_PROVIDER_ID, QWEN_API_CONFIG, QWEN_MODELS } from './constants.js';
 import type { QwenCredentials } from './types.js';
 import {
   loadCredentials,
@@ -66,7 +66,7 @@ export function checkExistingCredentials(): QwenCredentials | null {
 export const QwenAuthPlugin = async (_input: unknown) => {
   return {
     auth: {
-      provider: 'qwen',
+      provider: QWEN_PROVIDER_ID,
 
       loader: async (
         getAuth: () => Promise<{ type: string; access?: string; refresh?: string; expires?: number }>,
@@ -124,7 +124,7 @@ export const QwenAuthPlugin = async (_input: unknown) => {
       methods: [
         {
           type: 'oauth',
-          label: 'Login com Qwen (Device Flow)',
+          label: 'Qwen Code (qwen.ai OAuth)',
           authorize: async () => {
             const { verifier, challenge } = generatePKCE();
 
@@ -184,43 +184,15 @@ export const QwenAuthPlugin = async (_input: unknown) => {
             }
           },
         },
-        {
-          type: 'oauth',
-          label: 'Importar do qwen-code',
-          authorize: async () => {
-            const creds = checkExistingCredentials();
-
-            if (creds) {
-              return {
-                url: '',
-                instructions: 'Credenciais encontradas! Pressione Enter.',
-                method: 'code',
-                callback: async () => ({
-                  type: 'success',
-                  access: creds.accessToken,
-                  refresh: creds.refreshToken || '',
-                  expires: creds.expiryDate || Date.now() + 3600000,
-                }),
-              };
-            }
-
-            return {
-              url: '',
-              instructions: 'Credenciais não encontradas. Execute "qwen" primeiro.',
-              method: 'code',
-              callback: async () => ({ type: 'failed' }),
-            };
-          },
-        },
       ],
     },
 
     config: async (config: Record<string, unknown>) => {
       const providers = (config.provider as Record<string, unknown>) || {};
 
-      providers.qwen = {
+      providers[QWEN_PROVIDER_ID] = {
         npm: '@ai-sdk/openai-compatible',
-        name: 'Qwen (OAuth)',
+        name: 'Qwen Code',
         options: { baseURL: QWEN_API_CONFIG.baseUrl },
         models: Object.fromEntries(
           Object.entries(QWEN_MODELS).map(([id, m]) => [
@@ -238,10 +210,6 @@ export const QwenAuthPlugin = async (_input: unknown) => {
       };
 
       config.provider = providers;
-    },
-
-    event: async () => {
-      // Event handler
     },
   };
 };

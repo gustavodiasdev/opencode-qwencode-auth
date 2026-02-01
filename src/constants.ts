@@ -3,6 +3,9 @@
  * Based on qwen-code implementation
  */
 
+// Provider ID - cria provider separado para OAuth
+export const QWEN_PROVIDER_ID = 'qwen-code';
+
 // OAuth Device Flow Endpoints (descobertos do qwen-code)
 export const QWEN_OAUTH_CONFIG = {
   baseUrl: 'https://chat.qwen.ai',
@@ -36,7 +39,7 @@ export const CALLBACK_PORT = 14561;
 export const QWEN_MODELS = {
   'qwen3-coder-plus': {
     id: 'qwen3-coder-plus',
-    name: 'Qwen3 Coder Plus (OAuth)',
+    name: 'Qwen3 Coder Plus',
     contextWindow: 1048576, // 1M tokens
     maxOutput: 65536, // 64K tokens
     description: 'Most capable Qwen coding model with 1M context window',
@@ -44,7 +47,7 @@ export const QWEN_MODELS = {
   },
   'qwen3-coder-flash': {
     id: 'qwen3-coder-flash',
-    name: 'Qwen3 Coder Flash (OAuth)',
+    name: 'Qwen3 Coder Flash',
     contextWindow: 1048576,
     maxOutput: 65536,
     description: 'Faster Qwen coding model for quick responses',
