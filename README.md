@@ -1,160 +1,161 @@
-# Qwen OAuth Plugin for OpenCode
+# opencode-qwen-auth
 
-Authenticate OpenCode CLI with your qwen.ai account to use Qwen3-Coder models with **2,000 free requests per day**!
+Plugin de autenticação OAuth para [OpenCode CLI](https://opencode.ai) que permite usar modelos Qwen3-Coder através da sua conta [qwen.ai](https://chat.qwen.ai) com **2.000 requisições gratuitas por dia**.
 
-## Features
+## Funcionalidades
 
-- 🔐 **OAuth Authentication** - Sign in with your qwen.ai account
-- 🆓 **Free Tier** - 2,000 requests/day, 60 requests/minute (no token limits!)
-- 🔄 **Auto-refresh** - Automatic token refresh
-- 🔗 **qwen-code compatible** - Reuses credentials from qwen-code CLI
-- ⚡ **1M Context** - Access to models with 1M token context windows
+- **OAuth Device Flow** - Autenticação segura via navegador (RFC 8628)
+- **Polling Automático** - Detecta automaticamente quando você autoriza no navegador
+- **2.000 req/dia grátis** - Sem necessidade de cartão de crédito
+- **1M de contexto** - Modelos com janela de contexto de 1 milhão de tokens
+- **Auto-refresh** - Renova tokens automaticamente quando expiram
+- **Compatível com qwen-code** - Reutiliza credenciais existentes de `~/.qwen/oauth_creds.json`
 
-## Quick Start
+## Instalação
 
-### 1. Add the plugin to your OpenCode config
+### 1. Adicione o plugin ao OpenCode
 
-Create or edit `~/.config/opencode/opencode.json`:
-
-```json
-{
-  "$schema": "https://opencode.ai/config.json",
-  "plugin": ["opencode-qwen-auth"]
-}
-```
-
-### 2. Authenticate
-
-```bash
-opencode auth login
-```
-
-Choose the **Qwen** provider and select **OAuth with Qwen (qwen.ai account)**.
-
-### 3. Start using Qwen models
-
-```bash
-opencode --model qwen/qwen3-coder-plus
-```
-
-## Available Models
-
-| Model | Context | Output | Description |
-|-------|---------|--------|-------------|
-| `qwen3-coder-plus` | 1M tokens | 64K tokens | Most capable coding model |
-| `qwen3-coder-flash` | 1M tokens | 64K tokens | Faster responses |
-| `qwen-coder-plus` | 128K tokens | 32K tokens | Standard coding model |
-
-## Alternative: Import from qwen-code
-
-If you already use [qwen-code](https://github.com/QwenLM/qwen-code), this plugin will automatically detect and reuse your existing credentials from `~/.qwen/oauth_creds.json`.
-
-Just run:
-
-```bash
-# First, authenticate with qwen-code
-qwen  # This will prompt for OAuth login
-
-# Then OpenCode will automatically use those credentials
-opencode --model qwen/qwen3-coder-plus
-```
-
-## Configuration
-
-### Full config example
+Edite `~/.opencode/package.json`:
 
 ```json
 {
-  "$schema": "https://opencode.ai/config.json",
-  "plugin": ["opencode-qwen-auth"],
-  "provider": {
-    "qwen": {
-      "models": {
-        "qwen3-coder-plus": {
-          "name": "Qwen3 Coder Plus (OAuth)",
-          "limit": {
-            "context": 1048576,
-            "output": 65536
-          }
-        }
-      }
-    }
+  "dependencies": {
+    "opencode-qwen-auth": "github:gustavodiasdev/opencode-qwen-auth"
   }
 }
 ```
 
-### Environment Variables
+Edite `~/.opencode/opencode.jsonc`:
 
-| Variable | Description |
-|----------|-------------|
-| `OPENCODE_QWEN_DEBUG` | Set to `1` to enable debug logging |
-
-## Quota Information
-
-| Plan | Rate Limit | Daily Limit |
-|------|------------|-------------|
-| Free (OAuth) | 60 requests/min | 2,000 requests/day |
-
-## Local Development
-
-```bash
-# Clone the repository
-git clone https://github.com/YOUR_USERNAME/opencode-qwen-auth.git
-cd opencode-qwen-auth
-
-# Install dependencies
-bun install
-
-# Build
-bun run build
-
-# Link to OpenCode config
-# Add to ~/.config/opencode/opencode.json:
+```json
 {
-  "plugin": ["file:///absolute/path/to/opencode-qwen-auth/dist/index.js"]
+  "plugin": ["opencode-qwen-auth"]
 }
 ```
 
-## How It Works
-
-1. **OAuth Flow**: Opens your browser to qwen.ai for authentication
-2. **Token Storage**: Saves credentials to `~/.qwen/oauth_creds.json`
-3. **Auto-refresh**: Refreshes tokens automatically when they expire
-4. **API Proxy**: Routes OpenCode requests through Qwen's chat API
-
-## Troubleshooting
-
-### Port 14561 already in use
-
-The plugin uses port 14561 for the OAuth callback. If it's busy:
-
-1. Check for other processes: `lsof -i :14561`
-2. Kill the process or wait for it to finish
-
-### Token expired
-
-The plugin automatically refreshes tokens. If issues persist:
+### 2. Instale as dependências
 
 ```bash
-# Remove old credentials
-rm ~/.qwen/oauth_creds.json
+cd ~/.opencode && npm install
+```
 
-# Re-authenticate
+### 3. Autentique
+
+Inicie o OpenCode e selecione o provider **Qwen Code**:
+
+```bash
+opencode
+```
+
+Ou via linha de comando (selecione "Other" e digite `qwen-code`):
+
+```bash
 opencode auth login
 ```
 
-### Rate limit exceeded
+Escolha **"Qwen Code (qwen.ai OAuth)"** e autorize no navegador.
 
-If you hit the daily limit (2,000 requests):
-- Wait until midnight UTC for quota reset
-- Consider using API keys for higher limits
+### 4. Use os modelos Qwen
 
-## Related Projects
+```bash
+opencode --provider qwen-code --model qwen3-coder-plus
+```
 
-- [qwen-code](https://github.com/QwenLM/qwen-code) - Official Qwen coding CLI
-- [opencode-gemini-auth](https://github.com/jenslys/opencode-gemini-auth) - Gemini OAuth plugin (inspiration for this project)
-- [qwen-code-oai-proxy](https://github.com/aptdnfapt/qwen-code-oai-proxy) - Proxy for using Qwen with any OpenAI-compatible client
+## Modelos Disponíveis
 
-## License
+| Modelo | Contexto | Output | Descrição |
+|--------|----------|--------|-----------|
+| `qwen3-coder-plus` | 1M tokens | 64K tokens | Modelo mais capaz para programação |
+| `qwen3-coder-flash` | 1M tokens | 64K tokens | Respostas mais rápidas |
+
+## Como Funciona
+
+1. **Device Flow (RFC 8628)**: Ao fazer login, o plugin abre seu navegador para `chat.qwen.ai`
+2. **Polling Automático**: O plugin detecta automaticamente quando você autoriza (sem precisar pressionar Enter)
+3. **Armazenamento**: Credenciais são salvas em `~/.qwen/oauth_creds.json` (compatível com qwen-code)
+4. **Auto-refresh**: Tokens são renovados automaticamente 30 segundos antes de expirar
+
+## Limites de Uso
+
+| Plano | Rate Limit | Limite Diário |
+|-------|------------|---------------|
+| Gratuito (OAuth) | 60 req/min | 2.000 req/dia |
+
+## Desenvolvimento Local
+
+```bash
+# Clone o repositório
+git clone https://github.com/gustavodiasdev/opencode-qwen-auth.git
+cd opencode-qwen-auth
+
+# Instale dependências
+bun install
+
+# Verifique tipos
+bun run typecheck
+
+# Link local no OpenCode
+# Edite ~/.opencode/package.json:
+{
+  "dependencies": {
+    "opencode-qwen-auth": "file:/caminho/absoluto/para/opencode-qwen-auth"
+  }
+}
+
+# Reinstale
+cd ~/.opencode && npm install
+```
+
+## Estrutura do Projeto
+
+```
+src/
+├── constants.ts        # Constantes (endpoints OAuth, modelos)
+├── types.ts            # Interfaces TypeScript
+├── index.ts            # Plugin principal
+├── cli.ts              # CLI standalone (opcional)
+├── qwen/
+│   └── oauth.ts        # Lógica OAuth Device Flow + PKCE
+└── plugin/
+    ├── auth.ts         # Gerenciamento de credenciais
+    ├── client.ts       # Cliente API Qwen
+    └── utils.ts        # Utilitários
+```
+
+## Troubleshooting
+
+### Token expirado
+
+O plugin renova tokens automaticamente. Se houver problemas:
+
+```bash
+# Remova credenciais antigas
+rm ~/.qwen/oauth_creds.json
+
+# Re-autentique
+opencode auth login
+```
+
+### Provider não aparece no `auth login`
+
+O provider `qwen-code` é adicionado via plugin. No comando `opencode auth login`:
+1. Selecione **"Other"**
+2. Digite `qwen-code`
+
+No TUI (interface gráfica do OpenCode), o provider aparece automaticamente.
+
+### Rate limit excedido
+
+Se atingir o limite diário (2.000 requisições):
+- Aguarde até meia-noite UTC para reset
+- Considere usar API Key do [DashScope](https://dashscope.aliyun.com) para limites maiores
+
+## Projetos Relacionados
+
+- [qwen-code](https://github.com/QwenLM/qwen-code) - CLI oficial do Qwen para programação
+- [OpenCode](https://opencode.ai) - CLI de IA para desenvolvimento
+- [opencode-gemini-auth](https://github.com/jenslys/opencode-gemini-auth) - Plugin similar para Google Gemini
+
+## Licença
 
 MIT

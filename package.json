@@ -24,7 +24,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/YOUR_USERNAME/opencode-qwen-auth"
+    "url": "https://github.com/gustavodiasdev/opencode-qwen-auth"
   },
   "dependencies": {
     "open": "^10.1.0"
