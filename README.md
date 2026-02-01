@@ -1,5 +1,6 @@
 # 🤖 Qwen Code OAuth Plugin for OpenCode
 
+![npm version](https://img.shields.io/npm/v/opencode-qwencode-auth)
 ![License](https://img.shields.io/github/license/gustavodiasdev/opencode-qwencode-auth)
 ![GitHub stars](https://img.shields.io/github/stars/gustavodiasdev/opencode-qwencode-auth)
 
