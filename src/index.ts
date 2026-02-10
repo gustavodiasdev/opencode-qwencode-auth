@@ -214,7 +214,7 @@ export const QwenAuthPlugin = async (_input: unknown) => {
             {
               id: m.id,
               name: m.name,
-              reasoning: false,
+              reasoning: m.reasoning,
               limit: { context: m.contextWindow, output: m.maxOutput },
               cost: m.cost,
               modalities: { input: ['text'], output: ['text'] },
