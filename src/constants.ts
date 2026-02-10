@@ -3,7 +3,7 @@
  * Based on qwen-code implementation
  */
 
-// Provider ID - cria provider separado para OAuth
+// Provider ID
 export const QWEN_PROVIDER_ID = 'qwen-code';
 
 // OAuth Device Flow Endpoints (descobertos do qwen-code)
@@ -34,8 +34,8 @@ export const QWEN_API_CONFIG = {
 // OAuth callback port (para futuro Device Flow no plugin)
 export const CALLBACK_PORT = 14561;
 
-// Available Qwen models through OAuth
-// Baseado nos modelos disponíveis no qwen-code + modelos gerais via portal.qwen.ai
+// Available Qwen models through OAuth (portal.qwen.ai)
+// Testados e confirmados funcionando via token OAuth
 export const QWEN_MODELS = {
   // --- Coding Models ---
   'qwen3-coder-plus': {
@@ -56,40 +56,23 @@ export const QWEN_MODELS = {
     reasoning: false,
     cost: { input: 0, output: 0 },
   },
-  // --- General Purpose Models ---
-  'qwen3-max': {
-    id: 'qwen3-max',
-    name: 'Qwen3 Max',
-    contextWindow: 262144, // 256K tokens
-    maxOutput: 65536, // 64K tokens
-    description: 'Flagship ~1T parameter MoE model, best for complex reasoning and tool use',
+  // --- Alias Models (portal mapeia internamente) ---
+  'coder-model': {
+    id: 'coder-model',
+    name: 'Qwen Coder (auto)',
+    contextWindow: 1048576,
+    maxOutput: 65536,
+    description: 'Auto-routed coding model (maps to qwen3-coder-plus)',
     reasoning: false,
     cost: { input: 0, output: 0 },
   },
-  'qwen-plus-latest': {
-    id: 'qwen-plus-latest',
-    name: 'Qwen Plus',
-    contextWindow: 131072, // 128K tokens
-    maxOutput: 16384, // 16K tokens
-    description: 'Balanced model with thinking mode, good quality-speed tradeoff',
-    reasoning: true,
-    cost: { input: 0, output: 0 },
-  },
-  'qwen3-235b-a22b': {
-    id: 'qwen3-235b-a22b',
-    name: 'Qwen3 235B-A22B',
+  // --- Vision Model ---
+  'vision-model': {
+    id: 'vision-model',
+    name: 'Qwen VL Plus (vision)',
     contextWindow: 131072, // 128K tokens
     maxOutput: 32768, // 32K tokens
-    description: 'Largest open-weight Qwen3 MoE model with thinking mode',
-    reasoning: true,
-    cost: { input: 0, output: 0 },
-  },
-  'qwen-flash': {
-    id: 'qwen-flash',
-    name: 'Qwen Flash',
-    contextWindow: 1048576, // 1M tokens
-    maxOutput: 8192, // 8K tokens
-    description: 'Ultra-fast and low-cost model for simple tasks',
+    description: 'Vision-language model (maps to qwen3-vl-plus), supports image input',
     reasoning: false,
     cost: { input: 0, output: 0 },
   },

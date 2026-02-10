@@ -30,7 +30,6 @@ export class QwenClient {
    */
   private getBaseUrl(): string {
     if (this.credentials?.resourceUrl) {
-      // resourceUrl from qwen-code is just the host, need to add protocol and path
       const resourceUrl = this.credentials.resourceUrl;
       if (resourceUrl.startsWith('http')) {
         return resourceUrl.endsWith('/v1') ? resourceUrl : `${resourceUrl}/v1`;

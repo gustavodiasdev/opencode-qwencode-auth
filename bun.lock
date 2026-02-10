@@ -1,11 +1,11 @@
 {
   "lockfileVersion": 1,
-  "configVersion": 0,
   "workspaces": {
     "": {
       "name": "opencode-qwen-auth",
       "dependencies": {
         "open": "^10.1.0",
+        "opencode-qwencode-auth": "^1.2.0",
       },
       "devDependencies": {
         "@opencode-ai/plugin": "^1.1.48",
@@ -39,6 +39,8 @@
     "is-wsl": ["is-wsl@3.1.0", "", { "dependencies": { "is-inside-container": "^1.0.0" } }, "sha512-UcVfVfaK4Sc4m7X3dUSoHoozQGBEFeDC+zVo06t98xe8CzHSZZBekNXH+tu0NalHolcJ/QAGqS46Hef7QXBIMw=="],
 
     "open": ["open@10.2.0", "", { "dependencies": { "default-browser": "^5.2.1", "define-lazy-prop": "^3.0.0", "is-inside-container": "^1.0.0", "wsl-utils": "^0.1.0" } }, "sha512-YgBpdJHPyQ2UE5x+hlSXcnejzAvD0b22U2OuAP+8OnlJT+PjWPxtgmGqKKc+RgTM63U9gN0YzrYc71R2WT/hTA=="],
+
+    "opencode-qwencode-auth": ["opencode-qwencode-auth@1.2.0", "", { "dependencies": { "open": "^10.1.0" } }, "sha512-osqPC+MmlLYIow9gQqdZClN2DjNajDe8yHm/ZZ4yEIRVns2QqtZInJfpTQV5kcEUIsKsUWA7k3sxGObeKSD3hw=="],
 
     "run-applescript": ["run-applescript@7.1.0", "", {}, "sha512-DPe5pVFaAsinSaV6QjQ6gdiedWDcRCbUuiQfQa2wmWV7+xC9bGulGI8+TdRmoFkAPaBXk8CrAbnlY2ISniJ47Q=="],
 

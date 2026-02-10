@@ -3,6 +3,9 @@
  *
  * Plugin de autenticação OAuth para Qwen, baseado no qwen-code.
  * Implementa Device Flow (RFC 8628) para autenticação.
+ *
+ * Provider único: qwen-code → portal.qwen.ai/v1
+ * Modelos confirmados: qwen3-coder-plus, qwen3-coder-flash, coder-model, vision-model
  */
 
 import { existsSync } from 'node:fs';
@@ -31,14 +34,6 @@ export type { AuthErrorKind } from './errors.js';
 // Helpers
 // ============================================
 
-function getBaseUrl(resourceUrl?: string): string {
-  if (!resourceUrl) return QWEN_API_CONFIG.baseUrl;
-  if (resourceUrl.startsWith('http')) {
-    return resourceUrl.endsWith('/v1') ? resourceUrl : `${resourceUrl}/v1`;
-  }
-  return `https://${resourceUrl}/v1`;
-}
-
 function openBrowser(url: string): void {
   try {
     const platform = process.platform;
@@ -51,6 +46,7 @@ function openBrowser(url: string): void {
   }
 }
 
+/** Verifica se existem credenciais válidas em ~/.qwen/oauth_creds.json */
 export function checkExistingCredentials(): QwenCredentials | null {
   const credPath = getCredentialsPath();
   if (existsSync(credPath)) {
@@ -60,6 +56,50 @@ export function checkExistingCredentials(): QwenCredentials | null {
     }
   }
   return null;
+}
+
+/** Obtém um access token válido (com refresh se necessário) */
+async function getValidAccessToken(
+  getAuth: () => Promise<{ type: string; access?: string; refresh?: string; expires?: number }>,
+): Promise<string | null> {
+  const auth = await getAuth();
+
+  // Se não é OAuth, tentar carregar credenciais locais do qwen-code
+  if (!auth || auth.type !== 'oauth') {
+    const creds = checkExistingCredentials();
+    return creds?.accessToken ?? null;
+  }
+
+  let accessToken = auth.access;
+
+  // Refresh se expirado (com margem de 30s)
+  if (accessToken && auth.expires && Date.now() > auth.expires - 30000 && auth.refresh) {
+    try {
+      const refreshed = await refreshAccessToken(auth.refresh);
+      accessToken = refreshed.accessToken;
+      saveCredentials(refreshed);
+    } catch (e) {
+      const detail = e instanceof Error ? e.message : String(e);
+      logTechnicalDetail(`Token refresh falhou: ${detail}`);
+      accessToken = undefined;
+    }
+  }
+
+  // Fallback para credenciais locais do qwen-code
+  if (!accessToken) {
+    const creds = checkExistingCredentials();
+    if (creds) {
+      accessToken = creds.accessToken;
+    } else {
+      console.warn(
+        '[Qwen] Token expirado e sem credenciais alternativas. ' +
+        'Execute "npx opencode-qwencode-auth" ou "qwen-code auth login" para re-autenticar.'
+      );
+      return null;
+    }
+  }
+
+  return accessToken ?? null;
 }
 
 // ============================================
@@ -73,22 +113,8 @@ export const QwenAuthPlugin = async (_input: unknown) => {
 
       loader: async (
         getAuth: () => Promise<{ type: string; access?: string; refresh?: string; expires?: number }>,
-        provider: { models?: Record<string, { cost?: { input: number; output: number } }> }
+        provider: { models?: Record<string, { cost?: { input: number; output: number } }> },
       ) => {
-        const auth = await getAuth();
-
-        // Se não é OAuth, tentar carregar credenciais do qwen-code
-        if (!auth || auth.type !== 'oauth') {
-          const creds = checkExistingCredentials();
-          if (creds) {
-            return {
-              apiKey: creds.accessToken,
-              baseURL: getBaseUrl(creds.resourceUrl),
-            };
-          }
-          return null;
-        }
-
         // Zerar custo dos modelos (gratuito via OAuth)
         if (provider?.models) {
           for (const model of Object.values(provider.models)) {
@@ -96,48 +122,18 @@ export const QwenAuthPlugin = async (_input: unknown) => {
           }
         }
 
-        let accessToken = auth.access;
-
-        // Refresh se expirado
-        if (accessToken && auth.expires && Date.now() > auth.expires - 30000 && auth.refresh) {
-          try {
-            const refreshed = await refreshAccessToken(auth.refresh);
-            accessToken = refreshed.accessToken;
-            saveCredentials(refreshed);
-          } catch (e) {
-            const detail = e instanceof Error ? e.message : String(e);
-            logTechnicalDetail(`Token refresh falhou: ${detail}`);
-            // Não continuar com token expirado - tentar fallback
-            accessToken = undefined;
-          }
-        }
-
-        // Fallback para credenciais do qwen-code
-        if (!accessToken) {
-          const creds = checkExistingCredentials();
-          if (creds) {
-            accessToken = creds.accessToken;
-          } else {
-            console.warn(
-              '[Qwen] Token expirado e sem credenciais alternativas. ' +
-              'Execute "npx opencode-qwencode-auth" ou "qwen-code auth login" para re-autenticar.'
-            );
-            return null;
-          }
-        }
-
+        const accessToken = await getValidAccessToken(getAuth);
         if (!accessToken) return null;
 
-        const creds = loadCredentials();
         return {
           apiKey: accessToken,
-          baseURL: getBaseUrl(creds?.resourceUrl),
+          baseURL: QWEN_API_CONFIG.baseUrl,
         };
       },
 
       methods: [
         {
-          type: 'oauth',
+          type: 'oauth' as const,
           label: 'Qwen Code (qwen.ai OAuth)',
           authorize: async () => {
             const { verifier, challenge } = generatePKCE();
