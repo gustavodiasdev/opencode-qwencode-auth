@@ -8,7 +8,7 @@
   <img src="assets/screenshot.png" alt="OpenCode com Qwen Code" width="800">
 </p>
 
-**Autentique o OpenCode CLI com sua conta qwen.ai.** Este plugin permite usar modelos Qwen3-Coder com **2.000 requisições gratuitas por dia** - sem API key ou cartão de crédito!
+**Autentique o OpenCode CLI com sua conta qwen.ai.** Este plugin permite usar modelos Qwen (Coder, Max, Plus e mais) com **2.000 requisições gratuitas por dia** - sem API key ou cartão de crédito!
 
 [🇺🇸 Read in English](./README.md)
 
@@ -69,22 +69,35 @@ Selecione **"Qwen Code (qwen.ai OAuth)"**
 
 ## 🎯 Modelos Disponíveis
 
+### Modelos de Código
+
 | Modelo | Contexto | Max Output | Melhor Para |
 |--------|----------|------------|-------------|
 | `qwen3-coder-plus` | 1M tokens | 64K tokens | Tarefas complexas de código |
-| `qwen3-coder-flash` | 1M tokens | 64K tokens | Respostas rápidas |
+| `qwen3-coder-flash` | 1M tokens | 64K tokens | Respostas rápidas de código |
+
+### Modelos de Propósito Geral
+
+| Modelo | Contexto | Max Output | Reasoning | Melhor Para |
+|--------|----------|------------|-----------|-------------|
+| `qwen3-max` | 256K tokens | 64K tokens | Não | Modelo flagship, raciocínio complexo e tool use |
+| `qwen-plus-latest` | 128K tokens | 16K tokens | Sim | Equilíbrio qualidade-velocidade com thinking mode |
+| `qwen3-235b-a22b` | 128K tokens | 32K tokens | Sim | Maior modelo open-weight MoE com thinking mode |
+| `qwen-flash` | 1M tokens | 8K tokens | Não | Ultra-rápido, baixo custo para tarefas simples |
 
 ### Usando um modelo específico
 
 ```bash
 opencode --provider qwen-code --model qwen3-coder-plus
+opencode --provider qwen-code --model qwen3-max
+opencode --provider qwen-code --model qwen-plus-latest
 ```
 
 ## ⚙️ Como Funciona
 
 ```
 ┌─────────────────┐     ┌──────────────────┐     ┌─────────────────┐
-│   OpenCode CLI  │────▶│  qwen.ai OAuth   │────▶│  Qwen3-Coder    │
+│   OpenCode CLI  │────▶│  qwen.ai OAuth   │────▶│  Qwen Models    │
 │                 │◀────│  (Device Flow)   │◀────│  API            │
 └─────────────────┘     └──────────────────┘     └─────────────────┘
 ```
