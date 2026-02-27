@@ -56,14 +56,21 @@ Fixed a critical bug where the loader was returning `baseUrl` instead of `baseUR
 
 ### 1. Install the plugin
 
+**From npm (recommended):**
 ```bash
 cd ~/.config/opencode && npm install opencode-qwencode-auth
 ```
 
-Or with bun:
-
+**Or with bun:**
 ```bash
 cd ~/.config/opencode && bun add opencode-qwencode-auth
+```
+
+**From GitHub (latest unreleased changes):**
+```bash
+cd ~/.config/opencode && npm install ishan-parihar/opencode-qwencode-auth
+# or with bun
+cd ~/.config/opencode && bun add ishan-parihar/opencode-qwencode-auth
 ```
 
 ### 2. Enable the plugin
