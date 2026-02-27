@@ -20,6 +20,32 @@
 - 🧠 **1M context window** - Models with 1 million token context
 - 🔄 **Auto-refresh** - Tokens renewed automatically before expiration
 - 🔗 **qwen-code compatible** - Reuses credentials from `~/.qwen/oauth_creds.json`
+- 🌐 **Multi-endpoint support** - Automatically routes to portal.qwen.ai or DashScope based on your token
+
+## 🆕 What's New in v1.4.0
+
+### Dynamic API Endpoint Resolution
+
+The plugin now automatically detects and uses the correct API endpoint based on the `resource_url` returned by the OAuth server:
+
+| resource_url | API Endpoint | Region |
+|-------------|--------------|--------|
+| `portal.qwen.ai` | `https://portal.qwen.ai/v1` | International |
+| `dashscope` | `https://dashscope.aliyuncs.com/compatible-mode/v1` | China |
+| `dashscope-intl` | `https://dashscope-intl.aliyuncs.com/compatible-mode/v1` | International |
+
+This means the plugin works correctly regardless of which region your Qwen account is associated with.
+
+### DashScope Headers Support
+
+When using DashScope endpoints, the plugin automatically injects the required headers:
+- `X-DashScope-CacheControl: enable`
+- `X-DashScope-UserAgent: opencode-qwencode-auth/1.4.0`
+- `X-DashScope-AuthType: qwen-oauth`
+
+### Fixed: Loader Return Format
+
+Fixed a critical bug where the loader was returning `baseUrl` instead of `baseURL` (capital letters), which caused `ERR_INVALID_URL` errors.
 
 ## 📋 Prerequisites
 
@@ -30,13 +56,26 @@
 
 ### 1. Install the plugin
 
+**From npm (recommended):**
 ```bash
-cd ~/.opencode && npm install opencode-qwencode-auth
+cd ~/.config/opencode && npm install opencode-qwencode-auth
+```
+
+**Or with bun:**
+```bash
+cd ~/.config/opencode && bun add opencode-qwencode-auth
+```
+
+**From GitHub (latest unreleased changes):**
+```bash
+cd ~/.config/opencode && npm install ishan-parihar/opencode-qwencode-auth
+# or with bun
+cd ~/.config/opencode && bun add ishan-parihar/opencode-qwencode-auth
 ```
 
 ### 2. Enable the plugin
 
-Edit `~/.opencode/opencode.jsonc`:
+Edit `~/.config/opencode/opencode.json`:
 
 ```json
 {
@@ -76,21 +115,18 @@ Select **"Qwen Code (qwen.ai OAuth)"**
 | `qwen3-coder-plus` | 1M tokens | 64K tokens | Complex coding tasks |
 | `qwen3-coder-flash` | 1M tokens | 64K tokens | Fast coding responses |
 
-### General Purpose Models
+### Alias Models
 
-| Model | Context | Max Output | Reasoning | Best For |
-|-------|---------|------------|-----------|----------|
-| `qwen3-max` | 256K tokens | 64K tokens | No | Flagship model, complex reasoning and tool use |
-| `qwen-plus-latest` | 128K tokens | 16K tokens | Yes | Balanced quality-speed with thinking mode |
-| `qwen3-235b-a22b` | 128K tokens | 32K tokens | Yes | Largest open-weight MoE with thinking mode |
-| `qwen-flash` | 1M tokens | 8K tokens | No | Ultra-fast, low-cost simple tasks |
+| Model | Context | Max Output | Description |
+|-------|---------|------------|-------------|
+| `coder-model` | 1M tokens | 64K tokens | Auto-routed coding model |
+| `vision-model` | 128K tokens | 32K tokens | Vision-language model (qwen3-vl-plus) |
 
 ### Using a specific model
 
 ```bash
 opencode --provider qwen-code --model qwen3-coder-plus
-opencode --provider qwen-code --model qwen3-max
-opencode --provider qwen-code --model qwen-plus-latest
+opencode --provider qwen-code --model vision-model
 ```
 
 ## ⚙️ How It Works
@@ -105,7 +141,20 @@ opencode --provider qwen-code --model qwen-plus-latest
 1. **Device Flow (RFC 8628)**: Opens your browser to `chat.qwen.ai` for authentication
 2. **Automatic Polling**: Detects authorization completion automatically
 3. **Token Storage**: Saves credentials to `~/.qwen/oauth_creds.json`
-4. **Auto-refresh**: Renews tokens 30 seconds before expiration
+4. **Dynamic URL Resolution**: Uses `resource_url` from token to determine API endpoint
+5. **Auto-refresh**: Renews tokens 60 seconds before expiration
+
+## 📊 API Endpoints
+
+The plugin supports multiple API endpoints:
+
+| Endpoint | URL | Headers | Region |
+|----------|-----|---------|--------|
+| Portal | `https://portal.qwen.ai/v1` | Standard Bearer | International |
+| DashScope | `https://dashscope.aliyuncs.com/compatible-mode/v1` | DashScope-specific | China |
+| DashScope Intl | `https://dashscope-intl.aliyuncs.com/compatible-mode/v1` | DashScope-specific | International |
+
+The correct endpoint is automatically selected based on your OAuth token's `resource_url` field.
 
 ## 📊 Usage Limits
 
@@ -117,6 +166,18 @@ opencode --provider qwen-code --model qwen-plus-latest
 > Limits reset at midnight UTC. For higher limits, consider using an API key from [DashScope](https://dashscope.aliyun.com).
 
 ## 🔧 Troubleshooting
+
+### ERR_INVALID_URL error
+
+This was a bug in versions before 1.4.0. Update to the latest version:
+
+```bash
+cd ~/.config/opencode && npm update opencode-qwencode-auth
+```
+
+### "Incorrect API key provided" error
+
+This happens when the wrong API endpoint is used. The v1.4.0 update fixes this by automatically detecting the correct endpoint from your token's `resource_url`.
 
 ### Token expired
 
@@ -143,6 +204,15 @@ The `qwen-code` provider is added via plugin. In the `opencode auth login` comma
 - Try using `qwen3-coder-flash` for faster, lighter requests
 - Consider [DashScope API](https://dashscope.aliyun.com) for higher limits
 
+### Debug Mode
+
+Enable debug logging to see technical details:
+
+```bash
+export OPENCODE_QWEN_DEBUG=1
+opencode
+```
+
 ## 🛠️ Development
 
 ```bash
@@ -159,7 +229,7 @@ bun run typecheck
 
 ### Local testing
 
-Edit `~/.opencode/package.json`:
+Edit `~/.config/opencode/package.json`:
 
 ```json
 {
@@ -172,21 +242,20 @@ Edit `~/.opencode/package.json`:
 Then reinstall:
 
 ```bash
-cd ~/.opencode && npm install
+cd ~/.config/opencode && npm install
 ```
 
 ## 📁 Project Structure
 
 ```
 src/
-├── constants.ts        # OAuth endpoints, models config
+├── constants.ts        # OAuth endpoints, API URLs, models config
 ├── types.ts            # TypeScript interfaces
 ├── index.ts            # Main plugin entry point
 ├── qwen/
 │   └── oauth.ts        # OAuth Device Flow + PKCE
 └── plugin/
-    ├── auth.ts         # Credentials management
-    └── utils.ts        # Helper utilities
+    └── auth.ts         # Credentials management + URL resolution
 ```
 
 ## 🔗 Related Projects

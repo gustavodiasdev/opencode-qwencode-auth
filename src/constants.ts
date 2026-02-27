@@ -17,25 +17,38 @@ export const QWEN_OAUTH_CONFIG = {
 } as const;
 
 // Qwen API Configuration
-// O resource_url das credenciais é usado para determinar a URL base
+// The resource_url from credentials is used to determine the base URL
 export const QWEN_API_CONFIG = {
-  // Default base URL (pode ser sobrescrito pelo resource_url das credenciais)
-  defaultBaseUrl: 'https://dashscope.aliyuncs.com/compatible-mode/v1',
-  // Portal URL (usado quando resource_url = "portal.qwen.ai")
+  // DashScope (Chinese region)
+  dashscopeBaseUrl: 'https://dashscope.aliyuncs.com/compatible-mode/v1',
+  // DashScope International
+  dashscopeIntlBaseUrl: 'https://dashscope-intl.aliyuncs.com/compatible-mode/v1',
+  // Portal URL (used when resource_url = "portal.qwen.ai")
   portalBaseUrl: 'https://portal.qwen.ai/v1',
+  // Default fallback
+  baseUrl: 'https://dashscope.aliyuncs.com/compatible-mode/v1',
   // Endpoint de chat completions
   chatEndpoint: '/chat/completions',
   // Endpoint de models
   modelsEndpoint: '/models',
-  // Usado pelo OpenCode para configurar o provider
-  baseUrl: 'https://portal.qwen.ai/v1',
 } as const;
+
+// DashScope-specific headers required for OAuth tokens
+// These are needed when using DashScope endpoints with OAuth tokens
+export const DASHSCOPE_HEADERS = {
+  cacheControl: 'X-DashScope-CacheControl',
+  userAgent: 'X-DashScope-UserAgent',
+  authType: 'X-DashScope-AuthType',
+} as const;
+
+// User agent string for DashScope
+export const QWEN_USER_AGENT = 'opencode-qwencode-auth/1.4.0';
 
 // OAuth callback port (para futuro Device Flow no plugin)
 export const CALLBACK_PORT = 14561;
 
-// Available Qwen models through OAuth (portal.qwen.ai)
-// Testados e confirmados funcionando via token OAuth
+// Available Qwen models through OAuth
+// Supports both portal.qwen.ai and DashScope endpoints
 export const QWEN_MODELS = {
   // --- Coding Models ---
   'qwen3-coder-plus': {
