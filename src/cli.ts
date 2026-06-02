@@ -80,15 +80,19 @@ async function main() {
 
   const credentials = {
     access_token: accessToken,
+    token_type: 'Bearer',
     email: email.trim() || undefined,
     updated_at: Date.now(),
+    expiry_date: Date.now() + 7 * 24 * 60 * 60 * 1000,
   };
 
   writeFileSync(CREDS_PATH, JSON.stringify(credentials, null, 2));
 
   console.log('\nCredentials saved to:', CREDS_PATH);
-  console.log('\nYou can now use OpenCode with Qwen models:');
-  console.log('  opencode --model qwen/qwen3-coder-plus');
+  console.log('\nWARNING: Manual tokens do not include a refresh_token.');
+  console.log('They will expire in ~7 days. Use "/auth" to re-authenticate when needed.\n');
+  console.log('You can now use OpenCode with Qwen 3.6 Plus:');
+  console.log('  opencode --model qwen/coder-model');
 
   rl.close();
 }

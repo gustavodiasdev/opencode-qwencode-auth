@@ -1,3 +1,3 @@
-// Apenas exportar o plugin principal
-// NÃO exportar funções utilitárias pois o OpenCode trata todas as exportações como plugins
+// Re-export the main plugin only
+// Do NOT export utility functions as OpenCode treats all exports as plugins
 export { QwenAuthPlugin, default } from "./src/index";
